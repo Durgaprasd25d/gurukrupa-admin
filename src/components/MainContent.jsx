@@ -2,41 +2,61 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Pagination from "./Pagination";
 import Loader from "./Loader.jsx"; // Import the Loader component
+import Search from "../components/Search.jsx"; // Import the Search component
 
 const MainContent = () => {
   const [students, setStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [totalPages, setTotalPages] = useState(0); // Initialize totalPages state
 
   const itemsPerPage = 10;
-  const totalItems = 100;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   useEffect(() => {
     fetchStudents();
-  }, [currentPage]);
+  }, [currentPage, searchQuery]);
+
+  const filterStudents = (students, query) => {
+    if (!query) {
+      setFilteredStudents(students);
+    } else {
+      const filtered = students.filter(
+        (student) =>
+          (student.firstName &&
+            student.firstName.toLowerCase().includes(query.toLowerCase())) ||
+          (student.lastName &&
+            student.lastName.toLowerCase().includes(query.toLowerCase()))
+      );
+      setFilteredStudents(filtered);
+    }
+  };
 
   const fetchStudents = async () => {
-    setLoading(true);
-    setError(null);
     try {
-      const response = await fetch(`https://dummyjson.com/users?limit=${itemsPerPage}&skip=${(currentPage - 1) * itemsPerPage}`);
+      const response = await fetch(`https://dummyjson.com/users`);
       if (!response.ok) {
         throw new Error("Failed to fetch student data");
       }
       const data = await response.json();
       setStudents(data.users);
+      filterStudents(data.users, searchQuery); // Pass searchQuery to filterStudents
+      setTotalPages(Math.ceil(data.users.length / itemsPerPage)); // Calculate totalPages
+      setLoading(false); // Set loading to false after fetching data
     } catch (error) {
-      setError(error.message);
-      console.error("Error fetching student data:", error.message);
-    } finally {
-      setLoading(false);
+      setError("Error fetching student data: " + error.message);
+      setLoading(false); // Set loading to false on error
     }
   };
 
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
   };
 
   return (
@@ -56,6 +76,7 @@ const MainContent = () => {
       </div>
       <div className="flex-1 bg-gray-100 overflow-auto">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <Search onSearch={handleSearch} />
           <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             {loading ? (
               <Loader />
@@ -83,8 +104,11 @@ const MainContent = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {students.map((student, index) => (
-                    <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                  {filteredStudents.map((student, index) => (
+                    <tr
+                      key={index}
+                      className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                    >
                       <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">
                         {student.id}
                       </td>
@@ -111,7 +135,7 @@ const MainContent = () => {
             totalPages={totalPages}
             onPageChange={onPageChange}
             itemsPerPage={itemsPerPage}
-            totalItems={totalItems}
+            totalItems={students.length} // Pass the total number of students
           />
         </div>
       </div>
