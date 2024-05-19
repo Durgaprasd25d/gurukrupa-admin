@@ -27,7 +27,6 @@ const Sidebar = () => {
               <span className="ml-2">Add Student</span>
             </Link>
           </li>
-          {/* Add other sidebar links as needed */}
         </ul>
       </nav>
     </div>
