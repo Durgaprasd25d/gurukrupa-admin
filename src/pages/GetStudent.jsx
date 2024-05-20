@@ -27,7 +27,7 @@ const GetStudent = () => {
     fathersName: "Benjamin",
     address: "555 Birch St",
     grade: "A+",
-    profileImage: "https://via.placeholder.com/150" // Placeholder profile picture URL
+    profileImage: "https://via.placeholder.com/150"
   };
   
   return (

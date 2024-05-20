@@ -61,13 +61,13 @@ const AddStudent = () => {
   };
   return (
     <div className="flex">
-    <Sidebar />
-    <div className="flex-1 flex items-center justify-center">
-      <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
-        <h1 className="text-3xl font-bold mb-1 text-center">Add Student</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+      <Sidebar />
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
+          <h1 className="text-3xl font-bold mb-1 text-center">Add Student</h1>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label className="block text-gray-700 text-sm font-bold">
                   Name
                 </label>
@@ -218,7 +218,6 @@ const AddStudent = () => {
                   onChange={handleChange}
                 ></textarea>
               </div>
-             
             </div>
             <button
               type="submit"
