@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar.jsx";
+import React, { useState } from 'react';
+import Sidebar from '../components/Sidebar.jsx';
+import ProfileCard from '../components/ProfileCard.jsx'; // Import the ProfileCard component
 
 const GetStudent = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,6 +15,21 @@ const GetStudent = () => {
     setSearchQuery(e.target.value);
   };
 
+  // Dummy student data
+  const student = {
+    name: "Dhedi",
+    registrationNo: "10",
+    course: "gandapda",
+    dateOfAdmission: "01-01-2001",
+    courseDuration: "6 months",
+    dateOfBirth: "01-01-2005",
+    mothersName: "Sophia",
+    fathersName: "Benjamin",
+    address: "555 Birch St",
+    grade: "A+",
+    profileImage: "https://via.placeholder.com/150" // Placeholder profile picture URL
+  };
+  
   return (
     <div className="flex h-screen">
       <Sidebar /> {/* Add Sidebar component */}
@@ -37,25 +53,8 @@ const GetStudent = () => {
           </div>
           {showStudentCard && (
             <div className="flex justify-center">
-              <div className="bg-white shadow rounded-lg p-6 mr-4 w-80">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="Profile Pic"
-                  className="rounded-full h-20 w-20 mx-auto mb-4"
-                />
-                <h2 className="text-lg font-bold">Dummy Student Name</h2>
-                <p className="text-gray-600">Address: Dummy Address</p>
-                <p className="text-gray-600">Email: dummy@example.com</p>
-                {/* Add more dummy student details as needed */}
-              </div>
-              <div className="bg-white shadow rounded-lg p-6 w-80">
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="Profile Pic"
-                  className="h-20 w-20 mx-auto mb-4 rounded-full"
-                />
-                {/* Add more dummy student details as needed */}
-              </div>
+              {/* Pass the student data to the ProfileCard component */}
+              <ProfileCard student={student} />
             </div>
           )}
         </div>

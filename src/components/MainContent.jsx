@@ -12,37 +12,20 @@ const MainContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredStudents, setFilteredStudents] = useState([]);
   const [totalPages, setTotalPages] = useState(0); // Initialize totalPages state
 
   const itemsPerPage = 10;
-  const token = localStorage.getItem("token");
-  console.log(token);
+
   useEffect(() => {
     fetchStudents();
   }, [currentPage, searchQuery]);
 
-  const filterStudents = (students, query) => {
-    if (!query) {
-      setFilteredStudents(students);
-    } else {
-      const filtered = students.filter(
-        (student) =>
-          (student.name &&
-            student.name.toLowerCase().includes(query.toLowerCase())) ||
-          (student.registrationNo &&
-            student.registrationNo.toLowerCase().includes(query.toLowerCase()))
-      );
-      setFilteredStudents(filtered);
-    }
-  };
-
   const fetchStudents = async () => {
     try {
-      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      const token = localStorage.getItem("token");
       const response = await fetch("http://localhost:3000/api/students", {
         headers: {
-          Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -50,15 +33,16 @@ const MainContent = () => {
         throw new Error("Failed to fetch student data");
       }
       const data = await response.json();
+      console.log("Fetched data:", data); // Add this log statement
       setStudents(data);
-      filterStudents(data, searchQuery); // Pass searchQuery to filterStudents
-      setTotalPages(Math.ceil(data.length / itemsPerPage)); // Calculate totalPages
-      setLoading(false); // Set loading to false after fetching data
+      setTotalPages(Math.ceil(data.length / itemsPerPage));
+      setLoading(false);
     } catch (error) {
       setError("Error fetching student data: " + error.message);
-      setLoading(false); // Set loading to false on error
+      setLoading(false);
     }
   };
+  
 
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -68,9 +52,8 @@ const MainContent = () => {
     setSearchQuery(query);
   };
 
-  // For exporting to CSV
   const exportCSV = () => {
-    const csvData = students; // Use students state for exporting data
+    const csvData = students;
     const csv = Papa.unparse(csvData);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -84,7 +67,7 @@ const MainContent = () => {
 
   return (
     <div className="flex h-screen">
-      <Sidebar /> {/* Add Sidebar component */}
+      <Sidebar />
       <div className="flex flex-col flex-1">
         <div className="flex justify-between items-center p-6 bg-white">
           <h1 className="text-3xl font-bold">Students</h1>
@@ -118,7 +101,7 @@ const MainContent = () => {
                         Name
                       </th>
                       <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Registaration No
+                        Registration No
                       </th>
                       <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Course
@@ -132,11 +115,10 @@ const MainContent = () => {
                       <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Avatar
                       </th>
-                      {/* Add more table headers here based on your data */}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredStudents.map((student, index) => (
+                    {students.students.map((student, index) => (
                       <tr
                         key={index}
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
@@ -158,8 +140,8 @@ const MainContent = () => {
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           <img
-                            src={student.profilePic} // Assuming student.profilePic contains the URL of the profile picture
-                            alt={student.name} // Use student name as alt text
+                            src={student.profilePic}
+                            alt={student.name}
                             className="h-10 w-10 rounded-full"
                           />
                         </td>
@@ -174,7 +156,7 @@ const MainContent = () => {
               totalPages={totalPages}
               onPageChange={onPageChange}
               itemsPerPage={itemsPerPage}
-              totalItems={students.length} // Pass the total number of students
+              totalItems={students.length}
             />
           </div>
         </div>

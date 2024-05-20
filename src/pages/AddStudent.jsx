@@ -13,25 +13,43 @@ const AddStudent = () => {
     fathersName: "",
     address: "",
     grade: "",
+    profilePic: "",
+    certificatePic: "",
   });
-
-  const handleSubmit = (e) => {
+  const token = localStorage.getItem("token");
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Implement your logic to submit the student data
-    console.log("Submitting student data:", formData);
-    // Clear form fields after submission
-    setFormData({
-      name: "",
-      registrationNo: "",
-      course: "",
-      dateOfAdmission: "",
-      courseDuration: "",
-      dateOfBirth: "",
-      mothersName: "",
-      fathersName: "",
-      address: "",
-      grade: "",
-    });
+    try {
+      const response = await fetch("http://localhost:3000/api/students", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (response.ok) {
+        console.log("Student created successfully");
+        setFormData({
+          name: "",
+          registrationNo: "",
+          course: "",
+          dateOfAdmission: "",
+          courseDuration: "",
+          dateOfBirth: "",
+          mothersName: "",
+          fathersName: "",
+          address: "",
+          grade: "",
+          profilePic: "",
+          certificatePic: "",
+        });
+      } else {
+        console.error("Failed to create student");
+      }
+    } catch (err) {
+      console.error("Error creating student:", err);
+    }
   };
 
   const handleChange = (e) => {
@@ -41,17 +59,16 @@ const AddStudent = () => {
       [name]: value,
     });
   };
-
   return (
-    <div className="flex h-screen">
-      <Sidebar /> {/* Add Sidebar component */}
-      <div className="flex items-center justify-center flex-1">
-        <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold mb-6 text-center">Add Student</h1>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
+    <div className="flex">
+    <Sidebar />
+    <div className="flex-1 flex items-center justify-center">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
+        <h1 className="text-3xl font-bold mb-1 text-center">Add Student</h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+                <label className="block text-gray-700 text-sm font-bold">
                   Name
                 </label>
                 <input
@@ -152,19 +169,7 @@ const AddStudent = () => {
                   onChange={handleChange}
                 />
               </div>
-              <div className="col-span-2">
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Address
-                </label>
-                <textarea
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              <div className="col-span-2">
+              <div className="block text-gray-700 text-sm font-bold mb-2">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                   Grade
                 </label>
@@ -177,6 +182,43 @@ const AddStudent = () => {
                   onChange={handleChange}
                 />
               </div>
+              <div className="block text-gray-700 text-sm font-bold mb-2">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Address
+                </label>
+                <textarea
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Enter address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                ></textarea>
+              </div>
+              <div className="block text-gray-700 text-sm font-bold mb-2">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Profile Pic
+                </label>
+                <textarea
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Enter profilePic link"
+                  name="profilePic"
+                  value={formData.profilePic}
+                  onChange={handleChange}
+                ></textarea>
+              </div>
+              <div className="block text-gray-700 text-sm font-bold mb-2">
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Certificate Pic
+                </label>
+                <textarea
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Enter certificatePic link"
+                  name="certificatePic"
+                  value={formData.certificatePic}
+                  onChange={handleChange}
+                ></textarea>
+              </div>
+             
             </div>
             <button
               type="submit"

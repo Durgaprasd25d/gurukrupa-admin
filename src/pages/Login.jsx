@@ -5,7 +5,7 @@ export default function Login() {
   const navigate = useNavigate();
   // State to manage form data
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -62,18 +62,18 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div>
             <label
-              htmlFor="username"
+              htmlFor="email"
               className="block text-sm font-medium text-gray-900"
             >
-              Username
+              email
             </label>
             <input
-              id="username"
-              name="username"
+              id="email"
+              name="email"
               type="text"
-              autoComplete="username"
+              autoComplete="email"
               required
-              value={formData.username}
+              value={formData.email}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50"
             />
