@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import useAuth from "../../context/useAuth";
 
 export default function Login() {
-  const navigate = useNavigate();
-  // State to manage form data
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -12,7 +12,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Make a POST request to login endpoint
       const response = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: {
@@ -20,25 +19,19 @@ export default function Login() {
         },
         body: JSON.stringify(formData),
       });
-  
+
       if (!response.ok) {
         throw new Error("Login failed");
       } else {
-        // Parse JSON response
         const data = await response.json();
-        // Access token from parsed JSON data
         const token = data.token;
-        localStorage.setItem("token",token)
-        console.log("Login successful");
-        navigate("/");
+        login(token);
       }
     } catch (error) {
       console.error("Login error:", error.message);
     }
   };
-  
 
-  // Function to handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -65,12 +58,12 @@ export default function Login() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-900"
             >
-              email
+              Email
             </label>
             <input
               id="email"
               name="email"
-              type="text"
+              type="email"
               autoComplete="email"
               required
               value={formData.email}

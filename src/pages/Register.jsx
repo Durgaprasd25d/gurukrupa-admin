@@ -1,21 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function Register() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
-  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -27,16 +19,22 @@ export default function Login() {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        // Registration successful, redirect to login page
-        navigate("/login");
+      if (!response.ok) {
+        throw new Error("Registration failed");
       } else {
-        // Registration failed, handle error
-        console.error("Registration failed");
+        navigate("/login");
       }
     } catch (error) {
-      console.error("Error registering user:", error);
+      console.error("Registration error:", error.message);
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   return (
@@ -54,18 +52,18 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div>
             <label
-              htmlFor="username"
+              htmlFor="email"
               className="block text-sm font-medium text-gray-900"
             >
-              Username
+              Email
             </label>
             <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
               required
-              value={formData.username}
+              value={formData.email}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50"
             />
@@ -82,7 +80,7 @@ export default function Login() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               required
               value={formData.password}
               onChange={handleChange}
@@ -101,7 +99,7 @@ export default function Login() {
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
-          Already a member?{" "}
+          Already have an account?{" "}
           <Link
             to="/login"
             className="font-medium text-indigo-600 hover:text-indigo-500"
