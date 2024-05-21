@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import Sidebar from "../components/Sidebar.jsx"; // Import the Sidebar component
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import Loader from "../components/Loader";
+import Sidebar from "../components/Sidebar";
 
-const AddStudent = () => {
-  const [formData, setFormData] = useState({
+const EditStudent = () => {
+  const { id } = useParams();
+  const [student, setStudent] = useState({
     name: "",
     registrationNo: "",
     course: "",
@@ -11,82 +14,118 @@ const AddStudent = () => {
     dateOfBirth: "",
     mothersName: "",
     fathersName: "",
-    address: "",
     grade: "",
+    address: "",
+    profilePic: null,
+    certificatePic: null,
   });
-  const [profilePic, setProfilePic] = useState(null);
-  const [certificatePic, setCertificatePic] = useState(null);
-  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
-    if (profilePic) {
-      data.append("profilePic", profilePic);
-    }
-    if (certificatePic) {
-      data.append("certificatePic", certificatePic);
-    }
+  useEffect(() => {
+    fetchStudent();
+  }, []);
 
+  const fetchStudent = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/students", {
-        method: "POST",
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:3000/api/students/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: data,
       });
-      if (response.ok) {
-        console.log("Student created successfully");
-        setFormData({
-          name: "",
-          registrationNo: "",
-          course: "",
-          dateOfAdmission: "",
-          courseDuration: "",
-          dateOfBirth: "",
-          mothersName: "",
-          fathersName: "",
-          address: "",
-          grade: "",
-        });
-        setProfilePic(null);
-        setCertificatePic(null);
-      } else {
-        console.error("Failed to create student");
+      if (!response.ok) {
+        throw new Error("Failed to fetch student data");
       }
-    } catch (err) {
-      console.error("Error creating student:", err);
+      const data = await response.json();
+      // Update date fields formatting
+      const formattedStudent = {
+        ...data,
+        dateOfAdmission: formatDate(data.dateOfAdmission),
+        dateOfBirth: formatDate(data.dateOfBirth),
+      };
+      setStudent(formattedStudent);
+      setLoading(false);
+    } catch (error) {
+      setError("Error fetching student data: " + error.message);
+      setLoading(false);
     }
+  };
+
+  // Function to format dates as "yyyy-MM-dd"
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setStudent((prevStudent) => ({
+      ...prevStudent,
       [name]: value,
-    });
+    }));
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    if (name === "profilePic") {
-      setProfilePic(files[0]);
-    } else if (name === "certificatePic") {
-      setCertificatePic(files[0]);
+    setStudent((prevStudent) => ({
+      ...prevStudent,
+      [name]: files[0],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      for (const key in student) {
+        formData.append(key, student[key]);
+      }
+
+      const response = await fetch(`http://localhost:3000/api/students/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update student data");
+      }
+      navigate(`/`);
+    } catch (error) {
+      setError("Error updating student data: " + error.message);
     }
   };
+
+  if (loading) {
+    return (
+      <div>
+        <Loader />
+      </div>
+    );
+  }
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
-          <h1 className="text-3xl font-bold mb-1 text-center">Add Student</h1>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" encType="multipart/form-data">
+          <h1 className="text-3xl font-bold mb-1 text-center">Edit Student</h1>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
+            encType="multipart/form-data"
+          >
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -97,7 +136,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter name"
                   name="name"
-                  value={formData.name}
+                  value={student.name}
                   onChange={handleChange}
                 />
               </div>
@@ -110,7 +149,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter registration number"
                   name="registrationNo"
-                  value={formData.registrationNo}
+                  value={student.registrationNo}
                   onChange={handleChange}
                 />
               </div>
@@ -123,7 +162,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter course"
                   name="course"
-                  value={formData.course}
+                  value={student.course}
                   onChange={handleChange}
                 />
               </div>
@@ -135,7 +174,7 @@ const AddStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="date"
                   name="dateOfAdmission"
-                  value={formData.dateOfAdmission}
+                  value={student.dateOfAdmission}
                   onChange={handleChange}
                 />
               </div>
@@ -148,7 +187,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter course duration"
                   name="courseDuration"
-                  value={formData.courseDuration}
+                  value={student.courseDuration}
                   onChange={handleChange}
                 />
               </div>
@@ -160,7 +199,7 @@ const AddStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="date"
                   name="dateOfBirth"
-                  value={formData.dateOfBirth}
+                  value={student.dateOfBirth}
                   onChange={handleChange}
                 />
               </div>
@@ -173,7 +212,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter mother's name"
                   name="mothersName"
-                  value={formData.mothersName}
+                  value={student.mothersName}
                   onChange={handleChange}
                 />
               </div>
@@ -186,7 +225,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter father's name"
                   name="fathersName"
-                  value={formData.fathersName}
+                  value={student.fathersName}
                   onChange={handleChange}
                 />
               </div>
@@ -199,7 +238,7 @@ const AddStudent = () => {
                   type="text"
                   placeholder="Enter grade"
                   name="grade"
-                  value={formData.grade}
+                  value={student.grade}
                   onChange={handleChange}
                 />
               </div>
@@ -211,7 +250,7 @@ const AddStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   placeholder="Enter address"
                   name="address"
-                  value={formData.address}
+                  value={student.address}
                   onChange={handleChange}
                 ></textarea>
               </div>
@@ -251,4 +290,4 @@ const AddStudent = () => {
   );
 };
 
-export default AddStudent;
+export default EditStudent;

@@ -27,12 +27,12 @@ const Sidebar = () => {
               <span className="ml-2">Add Student</span>
             </Link>
           </li>
-          <li className="mb-4">
+          {/* <li className="mb-4">
             <Link to="/imageToBase64" className="flex items-center text-blue-300 hover:text-white">
               <span className="material-icons">school</span>
               <span className="ml-2">Generate Link</span>
             </Link>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </div>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Papa from "papaparse";
 import Pagination from "./Pagination";
-import Loader from "./Loader.jsx"; // Import the Loader component
-import Search from "../components/Search.jsx"; // Import the Search component
-import Sidebar from "../components/Sidebar.jsx"; // Import the Sidebar component
+import Loader from "./Loader";
+import Search from "../components/Search";
+import Sidebar from "../components/Sidebar";
 
 const MainContent = () => {
   const [students, setStudents] = useState([]);
@@ -12,7 +12,7 @@ const MainContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [totalPages, setTotalPages] = useState(0); // Initialize totalPages state
+  const [totalPages, setTotalPages] = useState(0);
 
   const itemsPerPage = 10;
 
@@ -23,26 +23,27 @@ const MainContent = () => {
   const fetchStudents = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/students", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/students?page=${currentPage}&limit=${itemsPerPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch student data");
       }
       const data = await response.json();
-      console.log("Fetched data:", data); // Add this log statement
-      setStudents(data);
-      setTotalPages(Math.ceil(data.length / itemsPerPage));
+      setStudents(data.students); // Updated to access students array directly
+      setTotalPages(data.pages); // Update with actual total pages
       setLoading(false);
     } catch (error) {
       setError("Error fetching student data: " + error.message);
       setLoading(false);
     }
   };
-  
 
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -53,8 +54,7 @@ const MainContent = () => {
   };
 
   const exportCSV = () => {
-    const csvData = students;
-    const csv = Papa.unparse(csvData);
+    const csv = Papa.unparse(students);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -63,6 +63,15 @@ const MainContent = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Function to format date as "dd-mm-yy"
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice();
+    return `${day}-${month}-${year}`;
   };
 
   return (
@@ -115,35 +124,50 @@ const MainContent = () => {
                       <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Avatar
                       </th>
+                      <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {students.students.map((student, index) => (
-                      <tr
-                        key={index}
-                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                      >
+                    {students.map((student) => (
+                      <tr key={student._id}>
                         <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">
                           {student.name}
                         </td>
-                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
+                        <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">
                           {student.registrationNo}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           {student.course}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
-                          {student.dateOfBirth}
+                          {formatDate(student.dateOfBirth)}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           {student.grade}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           <img
-                            src={student.profilePic}
+                            src={`http://localhost:3000/${student.profilePic.replace(
+                              /\\/g,
+                              "/"
+                            )}`}
                             alt={student.name}
                             className="h-10 w-10 rounded-full"
                           />
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
+                          <Link to={`/edit-student/${student._id}`}>
+                            <button className=" bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                              Edit
+                            </button>
+                          </Link>
+                          <Link to={`/student-profile/${student._id}`}>
+                            <button className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                              Profile
+                            </button>
+                          </Link>
                         </td>
                       </tr>
                     ))}
