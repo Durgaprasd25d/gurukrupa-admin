@@ -149,11 +149,12 @@ const MainContent = () => {
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           <img
-                            src={`http://localhost:3000/${student.profilePic.replace(
-                              /\\/g,
-                              "/"
-                            )}`}
-                            alt={student.name}
+                            src={`http://localhost:3000/${
+                              student.profilePic
+                                ? student.profilePic.replace(/\\/g, "/")
+                                : "defaultProfilePic.jpg"
+                            }`}
+                            alt="Profile"
                             className="h-10 w-10 rounded-full"
                           />
                         </td>

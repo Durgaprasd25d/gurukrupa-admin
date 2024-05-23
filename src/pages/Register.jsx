@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -19,13 +20,21 @@ export default function Register() {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Registration failed");
+        if (data.errors) {
+          data.errors.forEach((error) => toast.error(error.msg));
+        } else {
+          toast.error("Registration failed");
+        }
       } else {
+        toast.success("Registration successful");
         navigate("/login");
       }
     } catch (error) {
-      console.error("Registration error:", error.message);
+      console.error("Registration error:", error);
+      toast.error("Server error");
     }
   };
 

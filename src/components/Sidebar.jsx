@@ -15,12 +15,12 @@ const Sidebar = () => {
               <span className="ml-2">Dashboard</span>
             </Link>
           </li>
-          <li className="mb-4">
+          {/* <li className="mb-4">
             <Link to="/get-student" className="flex items-center text-blue-300 hover:text-white">
               <span className="material-icons">group</span>
               <span className="ml-2">Students</span>
             </Link>
-          </li>
+          </li> */}
           <li className="mb-4">
             <Link to="/add-student" className="flex items-center text-blue-300 hover:text-white">
               <span className="material-icons">school</span>

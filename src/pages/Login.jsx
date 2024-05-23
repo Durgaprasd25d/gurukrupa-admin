@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../context/useAuth";
+import toast from "react-hot-toast";
 
 export default function Login() {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
@@ -20,14 +22,23 @@ export default function Login() {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
+        if (data.errors) {
+          data.errors.forEach((error) => toast.error(error.msg));
+        } else {
+          toast.error("Login failed");
+        }
         throw new Error("Login failed");
       } else {
-        const data = await response.json();
         const token = data.token;
         login(token);
+        toast.success("Login Success");
+        navigate("/"); // Redirect after successful login
       }
     } catch (error) {
+      toast.error("An unexpected error occurred");
       console.error("Login error:", error.message);
     }
   };

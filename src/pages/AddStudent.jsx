@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar.jsx"; // Import the Sidebar component
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import Sidebar from "../components/Sidebar";
 
 const AddStudent = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +19,7 @@ const AddStudent = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [certificatePic, setCertificatePic] = useState(null);
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +43,7 @@ const AddStudent = () => {
         body: data,
       });
       if (response.ok) {
-        console.log("Student created successfully");
+        toast.success("Student created successfully");
         setFormData({
           name: "",
           registrationNo: "",
@@ -55,10 +58,12 @@ const AddStudent = () => {
         });
         setProfilePic(null);
         setCertificatePic(null);
+        navigate("/");
       } else {
-        console.error("Failed to create student");
+        toast.error("Failed to create student");
       }
     } catch (err) {
+      toast.error("Error creating student");
       console.error("Error creating student:", err);
     }
   };
@@ -86,7 +91,11 @@ const AddStudent = () => {
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
           <h1 className="text-3xl font-bold mb-1 text-center">Add Student</h1>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" encType="multipart/form-data">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
+            encType="multipart/form-data"
+          >
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">

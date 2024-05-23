@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import MainContent from "./components/MainContent";
 import AddStudent from "./pages/AddStudent";
 import GetStudent from "./pages/GetStudent";
@@ -25,6 +26,7 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
+        <Toaster position="top-center" reverseOrder={false} />
         <Routes>
           <Route
             path="/login"
