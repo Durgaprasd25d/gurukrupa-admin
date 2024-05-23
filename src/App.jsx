@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import MainContent from "./components/MainContent";
 import AddStudent from "./pages/AddStudent";
@@ -11,6 +16,7 @@ import StudentProfile from "./pages/StudentProfile";
 import ProtectedRoute from "../context/ProtectedRoute";
 import AuthProvider from "../context/AuthContext";
 import useAuth from "../context/useAuth";
+import Exam from "../src/pages/Exam.jsx";
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -84,6 +90,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/exam" element={<Exam />} />
         </Routes>
       </AuthProvider>
     </Router>

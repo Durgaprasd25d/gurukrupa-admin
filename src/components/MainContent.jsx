@@ -22,22 +22,30 @@ const MainContent = () => {
 
   const fetchStudents = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:3000/api/students?page=${currentPage}&limit=${itemsPerPage}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+
+      const url = new URL(`http://localhost:3000/api/students`);
+      url.searchParams.append("page", currentPage);
+      url.searchParams.append("limit", itemsPerPage);
+      if (searchQuery) {
+        url.searchParams.append("registrationNo", searchQuery);
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
       if (!response.ok) {
         throw new Error("Failed to fetch student data");
       }
+
       const data = await response.json();
-      setStudents(data.students); // Updated to access students array directly
-      setTotalPages(data.pages); // Update with actual total pages
+      setStudents(data.students);
+      setTotalPages(data.pages);
       setLoading(false);
     } catch (error) {
       setError("Error fetching student data: " + error.message);
@@ -49,8 +57,38 @@ const MainContent = () => {
     setCurrentPage(pageNumber);
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
+  const handleSearchSubmit = async (query) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const registrationResponse = await fetch(
+        `http://localhost:3000/api/students/search/registrationNo`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ registrationNo: query }), // Use the passed query value
+        }
+      );
+
+      if (!registrationResponse.ok) {
+        throw new Error("Failed to fetch student registration data");
+      }
+
+      const registrationData = await registrationResponse.json();
+      if (registrationData) {
+        setStudents([registrationData]); // Update state with the registration data
+      } else {
+        setStudents([]); // Clear students array if no data found
+        setSearchQuery("");
+      }
+      setLoading(false);
+    } catch (error) {
+      setError("Error fetching student registration data: " + error.message);
+      setLoading(false);
+    }
   };
 
   const exportCSV = () => {
@@ -65,7 +103,6 @@ const MainContent = () => {
     document.body.removeChild(link);
   };
 
-  // Function to format date as "dd-mm-yy"
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
@@ -96,7 +133,7 @@ const MainContent = () => {
         </div>
         <div className="flex-1 bg-gray-100 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <Search onSearch={handleSearch} />
+            <Search onSubmit={handleSearchSubmit} />
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               {loading ? (
                 <Loader />
@@ -147,6 +184,7 @@ const MainContent = () => {
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           {student.grade}
                         </td>
+
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           <img
                             src={`http://localhost:3000/${

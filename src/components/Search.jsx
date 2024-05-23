@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 
-const Search = ({ onSearch }) => {
+const Search = ({ onSubmit }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleChange = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    onSearch(query); // Invoke the onSearch function with the current query
+    setSearchQuery(e.target.value);
   };
+  
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    onSubmit(searchQuery.trim()); // Invoke the onSubmit function with the current query (trimmed)
+    setSearchQuery(""); // Clear the search query after submitting the form
+  };
+  
+
 
   return (
-    <div className="flex items-center mb-4 justify-center">
+    <form onSubmit={handleSubmit} className="flex items-center mb-4 justify-center">
       <input
         type="text"
         value={searchQuery}
@@ -19,12 +26,12 @@ const Search = ({ onSearch }) => {
         className="mr-2 px-3 py-2 border rounded"
       />
       <button
-        onClick={() => onSearch(searchQuery)} // Invoke onSearch when the button is clicked
+        type="submit" // Ensure the button triggers form submission
         className="bg-blue-600 text-white px-4 py-2 rounded"
       >
         Search
       </button>
-    </div>
+    </form>
   );
 };
 
