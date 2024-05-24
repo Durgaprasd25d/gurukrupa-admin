@@ -16,7 +16,11 @@ import StudentProfile from "./pages/StudentProfile";
 import ProtectedRoute from "../context/ProtectedRoute";
 import AuthProvider from "../context/AuthContext";
 import useAuth from "../context/useAuth";
-import Exam from "../src/pages/Exam.jsx";
+import CreateExam from "../src/pages/CreateExam.jsx";
+import GetExam from "../src/pages/GetExams.jsx";
+import CreateQuestion from "./pages/CreateQuestion.jsx";
+import UpdateExam from "./pages/UpdateExam.jsx";
+import ExamDetails from "./pages/ExamDetails.jsx";
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -90,7 +94,11 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/exam" element={<Exam />} />
+          <Route path="/exam" element={<CreateExam />} />
+          <Route path="/get-exam" element={<GetExam />} />
+          <Route path="/edit-exam/:id" element={<UpdateExam />} />
+          <Route path="/exam-details/:id" element={<ExamDetails />} />
+          <Route path="/question" element={<CreateQuestion />} />
         </Routes>
       </AuthProvider>
     </Router>

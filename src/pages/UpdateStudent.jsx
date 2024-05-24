@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import Sidebar from "../components/Sidebar";
+import {toast} from 'react-hot-toast'
 
 const EditStudent = () => {
   const { id } = useParams();
@@ -78,7 +79,7 @@ const EditStudent = () => {
       [name]: files[0],
     }));
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -87,7 +88,7 @@ const EditStudent = () => {
       for (const key in student) {
         formData.append(key, student[key]);
       }
-
+  
       const response = await fetch(`http://localhost:3000/api/students/${id}`, {
         method: "PUT",
         headers: {
@@ -98,11 +99,18 @@ const EditStudent = () => {
       if (!response.ok) {
         throw new Error("Failed to update student data");
       }
+      // Show success toast
+      toast.success('Student data updated successfully!', {
+      });
       navigate(`/`);
     } catch (error) {
       setError("Error updating student data: " + error.message);
+      // Show error toast
+      toast.error('Failed to update student data!', {
+      });
     }
   };
+  
 
   if (loading) {
     return (
