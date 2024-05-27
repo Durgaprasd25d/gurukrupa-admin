@@ -15,7 +15,7 @@ const AddStudent = () => {
     fathersName: "",
     address: "",
     grade: "",
-    password:""
+    password: "",
   });
   const [profilePic, setProfilePic] = useState(null);
   const [certificatePic, setCertificatePic] = useState(null);
@@ -56,7 +56,7 @@ const AddStudent = () => {
           fathersName: "",
           address: "",
           grade: "",
-          password:''
+          password: "",
         });
         setProfilePic(null);
         setCertificatePic(null);
@@ -65,7 +65,7 @@ const AddStudent = () => {
         toast.error("Failed to create student");
       }
     } catch (err) {
-      toast.error("Error creating student");
+      toast.error("Error creating student",err.message);
       console.error("Error creating student:", err);
     }
   };
@@ -126,18 +126,18 @@ const AddStudent = () => {
                 />
               </div>
               <div>
-  <label className="block text-gray-700 text-sm font-bold mb-2">
-    Password
-  </label>
-  <input
-    className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-    type="password"
-    placeholder="Enter password"
-    name="password"
-    value={formData.password}
-    onChange={handleChange}
-  />
-</div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Password
+                </label>
+                <input
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  type="password"
+                  placeholder="Enter password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
 
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
