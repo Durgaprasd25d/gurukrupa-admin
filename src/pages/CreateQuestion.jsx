@@ -18,7 +18,7 @@ const CreateQuestion = () => {
   const fetchExams = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/exam", {
+      const response = await fetch("http://localhost:3000/api/exam/admin", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

@@ -18,7 +18,7 @@ const ExamDetails = () => {
   const fetchExamDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/exam/${id}`, {
+      const response = await fetch(`http://localhost:3000/api/exam/${id}/adminId`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

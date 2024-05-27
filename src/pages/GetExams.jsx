@@ -22,7 +22,7 @@ const GetExam = () => {
   const fetchExams = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3000/api/exam", {
+      const response = await fetch("http://localhost:3000/api/exam/admin", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

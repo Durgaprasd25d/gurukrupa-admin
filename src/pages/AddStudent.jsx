@@ -15,6 +15,7 @@ const AddStudent = () => {
     fathersName: "",
     address: "",
     grade: "",
+    password:""
   });
   const [profilePic, setProfilePic] = useState(null);
   const [certificatePic, setCertificatePic] = useState(null);
@@ -55,6 +56,7 @@ const AddStudent = () => {
           fathersName: "",
           address: "",
           grade: "",
+          password:''
         });
         setProfilePic(null);
         setCertificatePic(null);
@@ -123,6 +125,20 @@ const AddStudent = () => {
                   onChange={handleChange}
                 />
               </div>
+              <div>
+  <label className="block text-gray-700 text-sm font-bold mb-2">
+    Password
+  </label>
+  <input
+    className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+    type="password"
+    placeholder="Enter password"
+    name="password"
+    value={formData.password}
+    onChange={handleChange}
+  />
+</div>
+
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                   Course
