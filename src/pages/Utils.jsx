@@ -23,7 +23,7 @@ const Base64 = () => {
     formData.append("image", selectedFile);
 
     try {
-      const response = await fetch("http://localhost:3000/api/image-to-base64", {
+      const response = await fetch("https://grtc-new-node-backend.onrender.com/api/image-to-base64", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

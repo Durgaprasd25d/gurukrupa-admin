@@ -3,34 +3,32 @@ import { Link } from "react-router-dom";
 import Papa from "papaparse";
 import Pagination from "./Pagination";
 import Loader from "./Loader";
-import Search from "../components/Search";
 import Sidebar from "../components/Sidebar";
+import toast from "react-hot-toast";
 
 const MainContent = () => {
   const [students, setStudents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [totalPages, setTotalPages] = useState(0);
+  const [exams, setExams] = useState([]);
 
   const itemsPerPage = 10;
 
   useEffect(() => {
     fetchStudents();
-  }, [currentPage, searchQuery]);
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchExams();
+  }, []);
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-
-      const url = new URL(`http://localhost:3000/api/students`);
-      url.searchParams.append("page", currentPage);
-      url.searchParams.append("limit", itemsPerPage);
-      if (searchQuery) {
-        url.searchParams.append("registrationNo", searchQuery);
-      }
+      const url = `https://grtc-new-node-backend.onrender.com/api/students`;
 
       const response = await fetch(url, {
         headers: {
@@ -53,42 +51,33 @@ const MainContent = () => {
     }
   };
 
-  const onPageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const handleSearchSubmit = async (query) => {
+  const fetchExams = async () => {
     try {
-      setLoading(true);
       const token = localStorage.getItem("token");
-      const registrationResponse = await fetch(
-        `http://localhost:3000/api/students/search/registrationNo`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ registrationNo: query }), // Use the passed query value
-        }
-      );
+      const url = "https://grtc-new-node-backend.onrender.com/api/exam/admin";
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-      if (!registrationResponse.ok) {
-        throw new Error("Failed to fetch student registration data");
+      if (!response.ok) {
+        throw new Error("Failed to fetch exams");
       }
 
-      const registrationData = await registrationResponse.json();
-      if (registrationData) {
-        setStudents([registrationData]); // Update state with the registration data
-      } else {
-        setStudents([]); // Clear students array if no data found
-        setSearchQuery("");
-      }
+      const data = await response.json();
+      setExams(data);
       setLoading(false);
     } catch (error) {
-      setError("Error fetching student registration data: " + error.message);
+      setError("Error fetching exams: " + error.message);
       setLoading(false);
     }
+  };
+
+  const onPageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   const exportCSV = () => {
@@ -104,11 +93,71 @@ const MainContent = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = String(date.getFullYear()).slice();
-    return `${day}-${month}-${year}`;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Invalid Date";
+      }
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear());
+      return `${day}-${month}-${year}`;
+    } catch (error) {
+      console.error("Error parsing date:", error);
+      return "Invalid Date";
+    }
+  };
+
+  const handleAssignExam = async (studentId, examId) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`https://grtc-new-node-backend.onrender.com/api/exam/assign`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ studentId, examId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.errors
+          ? errorData.errors[0].msg
+          : "Failed to assign exam";
+        toast.error(`Error: ${errorMessage}`);
+        throw new Error(errorMessage);
+      }
+
+      toast.success("Exam Assigned Successfully");
+      console.log("Exam assigned successfully");
+      // Optionally, update state or show a success message
+    } catch (error) {
+      console.error("Error assigning exam:", error);
+      toast.error(`Error: ${error.message}`);
+      // Optionally, you can handle the error further if needed
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExamAssignment = (studentId) => {
+    const examId = document.getElementById(`exam-${studentId}`).value;
+    if (!examId) {
+      alert("Please select an exam to assign.");
+      return;
+    }
+
+    const confirmAssign = window.confirm(
+      "Are you sure you want to assign this exam?"
+    );
+
+    if (confirmAssign) {
+      handleAssignExam(studentId, examId);
+    } else {
+      console.log("Assignment cancelled");
+    }
   };
 
   return (
@@ -133,7 +182,6 @@ const MainContent = () => {
         </div>
         <div className="flex-1 bg-gray-100 overflow-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <Search onSubmit={handleSearchSubmit} />
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
               {loading ? (
                 <Loader />
@@ -159,9 +207,6 @@ const MainContent = () => {
                         Grade
                       </th>
                       <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Avatar
-                      </th>
-                      <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Action
                       </th>
                     </tr>
@@ -179,34 +224,48 @@ const MainContent = () => {
                           {student.course}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(student.dateOfBirth)}
+                          {formatDate(student.dob)}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           {student.grade}
                         </td>
-
-                        <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
-                          <img
-                            src={`http://localhost:3000/${
-                              student.profilePic
-                                ? student.profilePic.replace(/\\/g, "/")
-                                : "defaultProfilePic.jpg"
-                            }`}
-                            alt="Profile"
-                            className="h-10 w-10 rounded-full"
-                          />
-                        </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
                           <Link to={`/edit-student/${student._id}`}>
-                            <button className=" bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                            <button className="bg-blue-600 text-white h-10 w-24 rounded mr-2">
                               Edit
                             </button>
                           </Link>
                           <Link to={`/student-profile/${student._id}`}>
-                            <button className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                            <button className="bg-blue-600 text-white h-10 w-24 rounded mr-2">
                               Profile
                             </button>
                           </Link>
+                          <select
+                            name="exam"
+                            className="bg-blue-600 text-white h-10 w-24 rounded mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 mt-2" // Add mt-2 for margin-top
+                            id={`exam-${student._id}`}
+                            defaultValue=""
+                          >
+                            <option disabled value="">
+                              Exam
+                            </option>
+                            {exams.map((exam) => (
+                              <option
+                                className="py-2 px-4 text-black bg-white hover:bg-blue-600 hover:text-white"
+                                key={exam._id}
+                                value={exam._id}
+                              >
+                                {exam.title}
+                              </option>
+                            ))}
+                          </select>
+
+                          <button
+                            onClick={() => handleExamAssignment(student._id)}
+                            className="bg-blue-600 text-white h-10 w-24 rounded ml-2"
+                          >
+                            Assign
+                          </button>
                         </td>
                       </tr>
                     ))}

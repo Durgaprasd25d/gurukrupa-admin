@@ -9,82 +9,86 @@ const AddStudent = () => {
     registrationNo: "",
     course: "",
     dateOfAdmission: "",
-    courseDuration: "",
-    dateOfBirth: "",
-    mothersName: "",
-    fathersName: "",
+    courseduration: "",
+    dob: "",
+    moteherName: "",
+    fatherName: "",
     address: "",
     grade: "",
-    password: "",
+    password: "", // Optional
+    coursecompleted: "",
+    certificateissued: "",
+    certificateNo: "",
+    profilePic: "", // Changed to text field
+    certificatePic: "", // Changed to text field
   });
-  const [profilePic, setProfilePic] = useState(null);
-  const [certificatePic, setCertificatePic] = useState(null);
-  const token = localStorage.getItem("token");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
-    });
-    if (profilePic) {
-      data.append("profilePic", profilePic);
-    }
-    if (certificatePic) {
-      data.append("certificatePic", certificatePic);
-    }
 
     try {
-      const response = await fetch("http://localhost:3000/api/students", {
+      const token = localStorage.getItem("token");
+
+      // Send to the first API without password
+      const studentDataResponse = await fetch(
+        "https://grtcindia.in/grtc-server/api/students",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      // Send to the second API with password
+      const apiResponse = await fetch("https://grtc-new-node-backend.onrender.com/api/students", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: data,
+        body: JSON.stringify(formData),
       });
-      if (response.ok) {
+
+      if (studentDataResponse.ok && apiResponse.ok) {
         toast.success("Student created successfully");
         setFormData({
           name: "",
           registrationNo: "",
           course: "",
           dateOfAdmission: "",
-          courseDuration: "",
-          dateOfBirth: "",
-          mothersName: "",
-          fathersName: "",
+          courseduration: "",
+          dob: "",
+          moteherName: "",
+          fatherName: "",
           address: "",
           grade: "",
           password: "",
+          profilePic: "",
+          certificatePic: "",
+          coursecompleted: "",
+          certificateissued: "",
+          certificateNo: "",
         });
-        setProfilePic(null);
-        setCertificatePic(null);
         navigate("/");
       } else {
         toast.error("Failed to create student");
       }
     } catch (err) {
-      toast.error("Error creating student",err.message);
+      toast.error("Error creating student: " + err.message);
       console.error("Error creating student:", err);
     }
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    if (name === "profilePic") {
-      setProfilePic(files[0]);
-    } else if (name === "certificatePic") {
-      setCertificatePic(files[0]);
-    }
+    const { name, value, type } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: type === "checkbox" ? e.target.checked : value,
+    }));
   };
 
   return (
@@ -93,11 +97,7 @@ const AddStudent = () => {
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
           <h1 className="text-3xl font-bold mb-1 text-center">Add Student</h1>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
-            encType="multipart/form-data"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -110,6 +110,7 @@ const AddStudent = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -123,6 +124,7 @@ const AddStudent = () => {
                   name="registrationNo"
                   value={formData.registrationNo}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -132,13 +134,12 @@ const AddStudent = () => {
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="password"
-                  placeholder="Enter password"
+                  placeholder="Enter password (optional)"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                 />
               </div>
-
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                   Course
@@ -150,6 +151,7 @@ const AddStudent = () => {
                   name="course"
                   value={formData.course}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -162,6 +164,7 @@ const AddStudent = () => {
                   name="dateOfAdmission"
                   value={formData.dateOfAdmission}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -172,9 +175,10 @@ const AddStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   placeholder="Enter course duration"
-                  name="courseDuration"
-                  value={formData.courseDuration}
+                  name="courseduration"
+                  value={formData.courseduration}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -184,9 +188,10 @@ const AddStudent = () => {
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
+                  name="dob"
+                  value={formData.dob}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -197,9 +202,10 @@ const AddStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   placeholder="Enter mother's name"
-                  name="mothersName"
-                  value={formData.mothersName}
+                  name="moteherName"
+                  value={formData.moteherName}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -210,9 +216,10 @@ const AddStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   placeholder="Enter father's name"
-                  name="fathersName"
-                  value={formData.fathersName}
+                  name="fatherName"
+                  value={formData.fatherName}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -226,6 +233,7 @@ const AddStudent = () => {
                   name="grade"
                   value={formData.grade}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -238,7 +246,53 @@ const AddStudent = () => {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
+                  required
                 ></textarea>
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Course Completed
+                </label>
+                <select
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  name="coursecompleted"
+                  value={formData.coursecompleted}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">-- Select --</option>
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Certificate Issued
+                </label>
+                <select
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  name="certificateissued"
+                  value={formData.certificateissued}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">-- Select --</option>
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Certificate No
+                </label>
+                <input
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  type="text"
+                  placeholder="Enter certificate number"
+                  name="certificateNo"
+                  value={formData.certificateNo}
+                  onChange={handleChange}
+                />
               </div>
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -246,9 +300,11 @@ const AddStudent = () => {
                 </label>
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="file"
+                  type="text"
+                  placeholder="Enter profile picture URL"
                   name="profilePic"
-                  onChange={handleFileChange}
+                  value={formData.profilePic}
+                  onChange={handleChange}
                 />
               </div>
               <div>
@@ -257,9 +313,11 @@ const AddStudent = () => {
                 </label>
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="file"
+                  type="text"
+                  placeholder="Enter certificate picture URL"
                   name="certificatePic"
-                  onChange={handleFileChange}
+                  value={formData.certificatePic}
+                  onChange={handleChange}
                 />
               </div>
             </div>

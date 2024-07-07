@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loader from "../components/Loader";
 import Sidebar from "../components/Sidebar";
-import {toast} from 'react-hot-toast'
+import { toast } from "react-hot-toast";
 
 const EditStudent = () => {
   const { id } = useParams();
@@ -11,14 +11,18 @@ const EditStudent = () => {
     registrationNo: "",
     course: "",
     dateOfAdmission: "",
-    courseDuration: "",
-    dateOfBirth: "",
-    mothersName: "",
-    fathersName: "",
-    grade: "",
+    courseduration: "",
+    dob: "",
+    moteherName: "",
+    fatherName: "",
     address: "",
-    profilePic: null,
-    certificatePic: null,
+    grade: "",
+    password: "", // Required for local API
+    coursecompleted: "false", // Required for remote API
+    certificateissued: "false", // Required for remote API
+    certificateNo: 0, // Required for remote API
+    profilePic: "",
+    certificatePic: "",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,21 +35,26 @@ const EditStudent = () => {
   const fetchStudent = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/students/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://grtc-new-node-backend.onrender.com/api/students/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch student data");
       }
       const data = await response.json();
-      // Update date fields formatting
       const formattedStudent = {
         ...data,
         dateOfAdmission: formatDate(data.dateOfAdmission),
-        dateOfBirth: formatDate(data.dateOfBirth),
+        dob: formatDate(data.dob),
+        coursecompleted: data.coursecompleted ? "true" : "false",
+        certificateissued: data.certificateissued ? "true" : "false",
+        certificateNo: data.certificateNo || 0,
       };
       setStudent(formattedStudent);
       setLoading(false);
@@ -55,7 +64,6 @@ const EditStudent = () => {
     }
   };
 
-  // Function to format dates as "yyyy-MM-dd"
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -65,52 +73,63 @@ const EditStudent = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setStudent((prevStudent) => ({
       ...prevStudent,
-      [name]: value,
+      [name]: type === "number" ? parseInt(value) : value,
     }));
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    setStudent((prevStudent) => ({
-      ...prevStudent,
-      [name]: files[0],
-    }));
-  };
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const formData = new FormData();
+
+      // Prepare data for remote API
+      const remoteData = {
+        ...student,
+        password: undefined, // Exclude password from remoteData
+        coursecompleted: student.coursecompleted === "true",
+        certificateissued: student.certificateissued === "true",
+      };
+
+      // Send data to the remote API
+      await fetch(`https://grtcindia.in/grtc-server/api/students/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(remoteData),
+      });
+
+      // Prepare data for local API
+      const localData = new FormData();
       for (const key in student) {
-        formData.append(key, student[key]);
+        localData.append(key, student[key]);
       }
-  
-      const response = await fetch(`http://localhost:3000/api/students/${id}`, {
+
+      // Send data to the local API
+      const response = await fetch(`https://grtc-new-node-backend.onrender.com/api/students/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: formData,
+        body: localData,
       });
+
       if (!response.ok) {
         throw new Error("Failed to update student data");
       }
+
       // Show success toast
-      toast.success('Student data updated successfully!', {
-      });
+      toast.success("Student data updated successfully!");
       navigate(`/`);
     } catch (error) {
       setError("Error updating student data: " + error.message);
       // Show error toast
-      toast.error('Failed to update student data!', {
-      });
+      toast.error("Failed to update student data!");
     }
   };
-  
 
   if (loading) {
     return (
@@ -119,6 +138,7 @@ const EditStudent = () => {
       </div>
     );
   }
+
   if (error) {
     return <div>{error}</div>;
   }
@@ -129,11 +149,7 @@ const EditStudent = () => {
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-5">
           <h1 className="text-3xl font-bold mb-1 text-center">Edit Student</h1>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
-            encType="multipart/form-data"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -194,8 +210,8 @@ const EditStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   placeholder="Enter course duration"
-                  name="courseDuration"
-                  value={student.courseDuration}
+                  name="courseduration"
+                  value={student.courseduration}
                   onChange={handleChange}
                 />
               </div>
@@ -206,8 +222,8 @@ const EditStudent = () => {
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="date"
-                  name="dateOfBirth"
-                  value={student.dateOfBirth}
+                  name="dob"
+                  value={student.dob}
                   onChange={handleChange}
                 />
               </div>
@@ -219,8 +235,8 @@ const EditStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   placeholder="Enter mother's name"
-                  name="mothersName"
-                  value={student.mothersName}
+                  name="moteherName"
+                  value={student.moteherName}
                   onChange={handleChange}
                 />
               </div>
@@ -232,8 +248,8 @@ const EditStudent = () => {
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   placeholder="Enter father's name"
-                  name="fathersName"
-                  value={student.fathersName}
+                  name="fatherName"
+                  value={student.fatherName}
                   onChange={handleChange}
                 />
               </div>
@@ -268,9 +284,11 @@ const EditStudent = () => {
                 </label>
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="file"
+                  type="text"
+                  placeholder="Enter profile picture URL"
                   name="profilePic"
-                  onChange={handleFileChange}
+                  value={student.profilePic}
+                  onChange={handleChange}
                 />
               </div>
               <div>
@@ -279,9 +297,52 @@ const EditStudent = () => {
                 </label>
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="file"
+                  type="text"
+                  placeholder="Enter certificate picture URL"
                   name="certificatePic"
-                  onChange={handleFileChange}
+                  value={student.certificatePic}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Course Completed
+                </label>
+                <select
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  name="coursecompleted"
+                  value={student.coursecompleted}
+                  onChange={handleChange}
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Certificate Issued
+                </label>
+                <select
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  name="certificateissued"
+                  value={student.certificateissued}
+                  onChange={handleChange}
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Certificate No
+                </label>
+                <input
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  type="number"
+                  placeholder="Enter certificate number"
+                  name="certificateNo"
+                  value={student.certificateNo}
+                  onChange={handleChange}
                 />
               </div>
             </div>

@@ -22,12 +22,15 @@ const GetExam = () => {
   const fetchExams = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3000/api/exam/admin", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://grtc-new-node-backend.onrender.com/api/exam/admin",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch exam data");
@@ -51,12 +54,15 @@ const GetExam = () => {
 
   const handleDeleteExam = async (examId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/exam/${examId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `https://grtc-new-node-backend.onrender.com/api/exam/${examId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete exam");
@@ -67,6 +73,22 @@ const GetExam = () => {
       toast.success("Exam deleted successfully");
     } catch (error) {
       toast.error("Error deleting exam: " + error.message);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Invalid Date";
+      }
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = String(date.getFullYear());
+      return `${day}-${month}-${year}`;
+    } catch (error) {
+      console.error("Error parsing date:", error);
+      return "Invalid Date";
     }
   };
 
@@ -102,6 +124,9 @@ const GetExam = () => {
                         Description
                       </th>
                       <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Action
                       </th>
                     </tr>
@@ -115,8 +140,11 @@ const GetExam = () => {
                         <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">
                           {exam.description}
                         </td>
+                        <td className="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {formatDate(exam.createdAt)}
+                        </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
-                        <Link to={`/edit-exam/${exam._id}`}>
+                          <Link to={`/edit-exam/${exam._id}`}>
                             <button className=" bg-blue-600 text-white px-4 py-2 rounded mr-2">
                               Edit
                             </button>

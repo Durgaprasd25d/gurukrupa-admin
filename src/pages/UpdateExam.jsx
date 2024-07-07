@@ -18,7 +18,7 @@ const UpdateExam = () => {
   const fetchExamDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/exam/${id}/adminId`, {
+      const response = await fetch(`https://grtc-new-node-backend.onrender.com/api/exam/${id}/adminId`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -47,7 +47,7 @@ const UpdateExam = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/exam/${id}`, { // Replace with your actual server URL
+      const response = await fetch(`https://grtc-new-node-backend.onrender.com/api/exam/${id}`, { // Replace with your actual server URL
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -16,12 +16,15 @@ const StudentProfile = () => {
   const fetchStudent = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/students/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `https://grtc-new-node-backend.onrender.com/api/students/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch student data");
       }
@@ -70,37 +73,14 @@ const StudentProfile = () => {
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Date of birth:</h2>
-                <p>{formatDate(student.dateOfBirth)}</p>
+                <p>{formatDate(student.dob)}</p>
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Date of admission:</h2>
                 <p>{formatDate(student.dateOfAdmission)}</p>
               </div>
-              {/* Add more fields as needed */}
             </div>
           </div>
-          <div className="absolute top-6 right-6">
-            <img
-              src={`http://localhost:3000/${
-                student.profilePic
-                  ? student.profilePic.replace(/\\/g, "/")
-                  : "defaultProfilePic.jpg"
-              }`}
-              alt="Profile"
-              className="w-32 h-32 object-cover rounded-full"
-            />
-          </div>
-        </div>
-        <div className="flex-1 flex justify-center items-center bg-gray-100 shadow-md">
-          <img
-            src={`http://localhost:3000/${
-              student.certificatePic
-                ? student.certificatePic.replace(/\\/g, "/")
-                : "defaultCertificatePic.jpg"
-            }`}
-            alt="Certificate"
-            className="w-100 h-100 object-contain"
-          />
         </div>
       </div>
     </div>
