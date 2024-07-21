@@ -76,6 +76,32 @@ const MainContent = () => {
     }
   };
 
+  const handleDeleteStudent = async (studentId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://grtc-new-node-backend.onrender.com/api/students/${studentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete student");
+      }
+
+      // Remove the deleted student from the state
+      setStudents(students.filter((student) => student._id !== studentId));
+      toast.success("Student deleted successfully");
+    } catch (error) {
+      toast.error("Error deleting student: " + error.message);
+    }
+  };
+
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -230,6 +256,12 @@ const MainContent = () => {
                           {student.grade}
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
+                          <button
+                            className="bg-red-600 text-white px-4 py-2 rounded mr-2"
+                            onClick={() => handleDeleteStudent(student._id)}
+                          >
+                            Delete
+                          </button>
                           <Link to={`/edit-student/${student._id}`}>
                             <button className="bg-blue-600 text-white h-10 w-24 rounded mr-2">
                               Edit

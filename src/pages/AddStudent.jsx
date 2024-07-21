@@ -1,26 +1,27 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
-import Sidebar from "../components/Sidebar";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import Sidebar from '../components/Sidebar';
+import FileUpload from '../components/FileUpload';
 
 const AddStudent = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    registrationNo: "",
-    course: "",
-    dateOfAdmission: "",
-    courseduration: "",
-    dob: "",
-    moteherName: "",
-    fatherName: "",
-    address: "",
-    grade: "",
-    password: "", // Optional
-    coursecompleted: "",
-    certificateissued: "",
-    certificateNo: "",
-    profilePic: "", // Changed to text field
-    certificatePic: "", // Changed to text field
+    name: '',
+    registrationNo: '',
+    course: '',
+    dateOfAdmission: '',
+    courseduration: '',
+    dob: '',
+    moteherName: '',
+    fatherName: '',
+    address: '',
+    grade: '',
+    password: '', // Optional
+    coursecompleted: '',
+    certificateissued: '',
+    certificateNo: '',
+    profilePic: '', // Changed to text field
+    certificatePic: '', // Changed to text field
   });
 
   const navigate = useNavigate();
@@ -29,57 +30,57 @@ const AddStudent = () => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
 
       // Send to the first API without password
       const studentDataResponse = await fetch(
-        "https://grtcindia.in/grtc-server/api/students",
+        'https://grtcindia.in/grtc-server/api/students',
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(formData),
         }
       );
 
       // Send to the second API with password
-      const apiResponse = await fetch("https://grtc-new-node-backend.onrender.com/api/students", {
-        method: "POST",
+      const apiResponse = await fetch('https://grtc-new-node-backend.onrender.com/api/students', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
       if (studentDataResponse.ok && apiResponse.ok) {
-        toast.success("Student created successfully");
+        toast.success('Student created successfully');
         setFormData({
-          name: "",
-          registrationNo: "",
-          course: "",
-          dateOfAdmission: "",
-          courseduration: "",
-          dob: "",
-          moteherName: "",
-          fatherName: "",
-          address: "",
-          grade: "",
-          password: "",
-          profilePic: "",
-          certificatePic: "",
-          coursecompleted: "",
-          certificateissued: "",
-          certificateNo: "",
+          name: '',
+          registrationNo: '',
+          course: '',
+          dateOfAdmission: '',
+          courseduration: '',
+          dob: '',
+          moteherName: '',
+          fatherName: '',
+          address: '',
+          grade: '',
+          password: '',
+          profilePic: '',
+          certificatePic: '',
+          coursecompleted: '',
+          certificateissued: '',
+          certificateNo: '',
         });
-        navigate("/");
+        navigate('/');
       } else {
-        toast.error("Failed to create student");
+        toast.error('Failed to create student');
       }
     } catch (err) {
-      toast.error("Error creating student: " + err.message);
-      console.error("Error creating student:", err);
+      toast.error('Error creating student: ' + err.message);
+      console.error('Error creating student:', err);
     }
   };
 
@@ -87,7 +88,7 @@ const AddStudent = () => {
     const { name, value, type } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: type === "checkbox" ? e.target.checked : value,
+      [name]: type === 'checkbox' ? e.target.checked : value,
     }));
   };
 
@@ -224,6 +225,20 @@ const AddStudent = () => {
               </div>
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
+                  Address
+                </label>
+                <input
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  type="text"
+                  placeholder="Enter address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2">
                   Grade
                 </label>
                 <input
@@ -238,19 +253,6 @@ const AddStudent = () => {
               </div>
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Address
-                </label>
-                <textarea
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
                   Course Completed
                 </label>
                 <select
@@ -260,7 +262,7 @@ const AddStudent = () => {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">-- Select --</option>
+                  <option value="">Select an option</option>
                   <option value="true">True</option>
                   <option value="false">False</option>
                 </select>
@@ -276,14 +278,14 @@ const AddStudent = () => {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">-- Select --</option>
+                  <option value="">Select an option</option>
                   <option value="true">True</option>
                   <option value="false">False</option>
                 </select>
               </div>
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Certificate No
+                  Certificate No.
                 </label>
                 <input
                   className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -292,38 +294,15 @@ const AddStudent = () => {
                   name="certificateNo"
                   value={formData.certificateNo}
                   onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Profile Pic
-                </label>
-                <input
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="text"
-                  placeholder="Enter profile picture URL"
-                  name="profilePic"
-                  value={formData.profilePic}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Certificate Pic
-                </label>
-                <input
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  type="text"
-                  placeholder="Enter certificate picture URL"
-                  name="certificatePic"
-                  value={formData.certificatePic}
-                  onChange={handleChange}
+                  required
                 />
               </div>
             </div>
+            <FileUpload label="Profile Picture" fieldName="profilePic" setFormData={setFormData} />
+            <FileUpload label="Certificate Picture" fieldName="certificatePic" setFormData={setFormData} />
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 w-full"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Add Student
             </button>
