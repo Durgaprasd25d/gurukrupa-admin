@@ -36,7 +36,7 @@ const EditStudent = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://grtc-new-node-backend.onrender.com/api/students/${id}`,
+        `https://grtc-new-node-backend.onrender.com/api/students/id/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
