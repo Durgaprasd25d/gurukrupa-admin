@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import FileUpload from '../components/FileUpload';
+import Loader from '../components/Loader'
+
 
 const AddStudent = () => {
   const [formData, setFormData] = useState({
@@ -23,6 +25,7 @@ const AddStudent = () => {
     profilePic: '', // Changed to text field
     certificatePic: '', // Changed to text field
   });
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -30,6 +33,7 @@ const AddStudent = () => {
     e.preventDefault();
 
     try {
+      setLoading(true)
       const token = localStorage.getItem('token');
 
       // Send to the first API without password
@@ -74,6 +78,7 @@ const AddStudent = () => {
           certificateissued: '',
           certificateNo: '',
         });
+        setLoading(false)
         navigate('/');
       } else {
         toast.error('Failed to create student');
