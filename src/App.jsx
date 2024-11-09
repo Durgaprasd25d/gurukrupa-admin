@@ -22,6 +22,8 @@ import CreateQuestion from "./pages/CreateQuestion.jsx";
 import UpdateExam from "./pages/UpdateExam.jsx";
 import ExamDetails from "./pages/ExamDetails.jsx";
 import ExamSearch from "./pages/SearchExams.jsx";
+import CreateImageUpload from "./pages/ImageUpload.jsx";
+import DeleteImage from "./pages/GetImages.jsx";
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -101,6 +103,8 @@ const App = () => {
           <Route path="/edit-exam/:id" element={<UpdateExam />} />
           <Route path="/exam-details/:id" element={<ExamDetails />} />
           <Route path="/question" element={<CreateQuestion />} />
+          <Route path="/image-upload" element={<CreateImageUpload />} />
+          <Route path="/delete-image" element={<DeleteImage />} />
         </Routes>
       </AuthProvider>
     </Router>

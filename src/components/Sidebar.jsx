@@ -1,147 +1,43 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { FaTachometerAlt, FaUserPlus, FaSearch, FaClipboard, FaImage } from "react-icons/fa";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 bg-blue-900 text-white flex flex-col h-screen">
-      <div className="flex items-center justify-center h-16 border-b border-blue-800">
+    <div className="w-64 bg-blue-900 text-white flex flex-col h-screen shadow-lg">
+      {/* Sidebar Header */}
+      <div className="flex items-center justify-center h-16 border-b border-blue-800 bg-blue-800">
         <div className="text-2xl font-bold">Gurukrupa | Admin</div>
       </div>
-      <nav className="flex-1 p-4">
-        <ul>
-          <li className="mb-4">
-            <Link
-              to="/"
-              className="flex items-center text-blue-300 hover:text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16m-7 6h7"
-                />
-              </svg>
-              <span className="ml-2">Dashboard</span>
-            </Link>
-          </li>
 
-          <li className="mb-4">
-            <Link
-              to="/add-student"
-              className="flex items-center text-blue-300 hover:text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+      {/* Navigation Links */}
+      <nav className="flex-1 p-4 space-y-4">
+        <ul>
+          {[
+            { to: "/", icon: <FaTachometerAlt />, label: "Dashboard" },
+            { to: "/add-student", icon: <FaUserPlus />, label: "Add Student" },
+            { to: "/get-exam", icon: <FaClipboard />, label: "Get Exam" },
+            { to: "/search-exam", icon: <FaSearch />, label: "Search Exam" },
+            { to: "/exam", icon: <FaClipboard />, label: "Add Exam" },
+            { to: "/question", icon: <FaClipboard />, label: "Add Questions" },
+            { to: "/image-upload", icon: <FaImage />, label: "Post Images" },
+            { to: "/delete-image", icon: <FaImage />, label: "Get Images" },
+          ].map(({ to, icon, label }, index) => (
+            <li key={index} className="mb-4 group">
+              <NavLink
+                to={to}
+                className={({ isActive }) =>
+                  `flex items-center py-2 px-4 rounded-lg transition-all duration-200 ${
+                    isActive ? "bg-blue-800 text-white" : "text-blue-300 hover:text-white hover:bg-blue-700"
+                  }`
+                }
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
-              <span className="ml-2">Add Student</span>
-            </Link>
-          </li>
-          <li className="mb-4">
-            <Link
-              to="/get-exam"
-              className="flex items-center text-blue-300 hover:text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                />
-              </svg>
-              <span className="ml-2">Get Exam</span>
-            </Link>
-          </li>
-          <li className="mb-4">
-            <Link
-              to="/search-exam"
-              className="flex items-center text-blue-300 hover:text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                />
-              </svg>
-              <span className="ml-2">Search Exam</span>
-            </Link>
-          </li>
-          <li className="mb-4">
-            <Link
-              to="/exam"
-              className="flex items-center text-blue-300 hover:text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span className="ml-2">Add Exam</span>
-            </Link>
-          </li>
-          <li className="mb-4">
-            <Link
-              to="/question"
-              className="flex items-center text-blue-300 hover:text-white"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span className="ml-2">Add Questions</span>
-            </Link>
-          </li>
+                {/* Icon */}
+                <span className="text-xl">{icon}</span>
+                <span className="ml-3 text-lg font-medium">{label}</span>
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>

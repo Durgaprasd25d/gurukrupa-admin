@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../context/useAuth";
 import toast from "react-hot-toast";
-import Loader from '../components/Loader'
+import { FaEye, FaEyeSlash, FaRegBuilding } from "react-icons/fa";
+import { HiOutlineMail } from "react-icons/hi";
+import Loader from "../components/Loader";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ export default function Login() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +45,7 @@ export default function Login() {
         const token = data.token;
         login(token);
         toast.success("Login Success");
-        navigate("/"); // Redirect after successful login
+        navigate("/");
       }
     } catch (error) {
       console.error("Login error:", error.message);
@@ -61,74 +64,85 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center items-center">
-      <div className="sm:w-full sm:max-w-sm px-6 py-12 lg:px-8">
-        <img
-          className="mx-auto h-10 w-auto"
-          src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-          alt="Your Company"
-        />
-        <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
-          Sign in
-        </h2>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-900 px-6">
+      <div className="bg-gray-50 rounded-2xl shadow-lg max-w-lg w-full p-10 transform transition-all hover:shadow-2xl">
+        <div className="text-center">
+          <FaRegBuilding className="mx-auto h-12 w-12 text-indigo-600 mb-4" />
+          <h2 className="text-2xl font-bold text-indigo-800">Welcome Back</h2>
+          <p className="text-sm text-gray-600 mb-6">Sign in to continue</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="relative">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-semibold text-gray-700"
             >
               Email
             </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50"
-            />
+            <div className="flex items-center mt-1">
+              <HiOutlineMail className="absolute left-3 text-indigo-500" />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-indigo-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 shadow-sm"
+                placeholder="Enter your email"
+              />
+            </div>
           </div>
 
-          <div>
+          <div className="relative">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-900"
+              className="block text-sm font-semibold text-gray-700"
             >
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring focus:ring-indigo-600 focus:ring-opacity-50"
-            />
+            <div className="flex items-center mt-1">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full pl-4 pr-10 py-2 rounded-lg border border-indigo-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 shadow-sm"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 text-indigo-500 focus:outline-none"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={loading}
-            >
-              {loading ? <Loader /> : "Sign in"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-2 rounded-lg font-semibold text-white transition-all duration-300 ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800"
+            }`}
+          >
+            {loading ? <Loader /> : "Sign in"}
+          </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Not a member yet?{" "}
+        <p className="mt-8 text-center text-sm text-gray-500">
+          Don’t have an account?{" "}
           <Link
             to="/register"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="text-indigo-600 hover:text-indigo-500 font-medium"
           >
-            Register
+            Register now
           </Link>
         </p>
       </div>
