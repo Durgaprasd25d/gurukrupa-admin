@@ -21,7 +21,7 @@ const DeleteImage = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "https://grtcindia.in/grtc-server/api/get-images",
+          "https://grtc-new-node-backend.onrender.com/api/get-images",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -52,7 +52,7 @@ const DeleteImage = () => {
       setDeleting(public_id);
       const token = localStorage.getItem("token");
 
-      await axios.delete("https://grtcindia.in/grtc-server/api/delete-images", {
+      await axios.delete("https://grtc-new-node-backend.onrender.com/api/delete-images", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -77,7 +77,7 @@ const DeleteImage = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete("https://grtcindia.in/grtc-server/api/delete-images", {
+      await axios.delete("https://grtc-new-node-backend.onrender.com/api/delete-images", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

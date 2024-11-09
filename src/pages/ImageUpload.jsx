@@ -59,7 +59,7 @@ const CreateImageUpload = () => {
       formDataToSend.append("image_category", formData.image_category);
 
       const response = await axios.post(
-        "https://grtcindia.in/grtc-server/api/bulk-images",
+        "https://grtc-new-node-backend.onrender.com/api/bulk-images",
         formDataToSend,
         {
           headers: {
