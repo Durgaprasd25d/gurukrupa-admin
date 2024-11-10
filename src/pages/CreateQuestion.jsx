@@ -63,7 +63,7 @@ const CreateQuestion = () => {
 
       // For Single Question Creation
       if (!isBulkUpload) {
-        const response = await fetch("http://localhost:3000/api/questions/create_question", {
+        const response = await fetch("https://grtc-new-node-backend.onrender.com/api/questions/create_question", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -91,7 +91,7 @@ const CreateQuestion = () => {
         formDataToSend.append("file", formData.file);
         formDataToSend.append("examId", formData.examId);
 
-        const response = await fetch("http://localhost:3000/api/questions/create_question", {
+        const response = await fetch("https://grtc-new-node-backend.onrender.com/api/questions/create_question", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
