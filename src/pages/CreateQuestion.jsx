@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import Sidebar from "../components/Sidebar";
 import Loader from "../components/Loader";
+import { useDropzone } from "react-dropzone";
 
 const CreateQuestion = () => {
   const [exams, setExams] = useState([]);
@@ -10,8 +11,10 @@ const CreateQuestion = () => {
     questionText: "",
     options: ["", "", "", ""],
     correctAnswer: "",
+    file: null, // for handling file upload
   });
   const [loading, setLoading] = useState(false);
+  const [isBulkUpload, setIsBulkUpload] = useState(false);
 
   useEffect(() => {
     fetchExams();
@@ -57,27 +60,53 @@ const CreateQuestion = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await fetch("https://grtc-new-node-backend.onrender.com/api/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
 
-      if (!response.ok) {
-        throw new Error("Failed to create question");
+      // For Single Question Creation
+      if (!isBulkUpload) {
+        const response = await fetch("http://localhost:3000/api/questions/create_question", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create question");
+        }
+
+        toast.success("Question created successfully!");
+
+        setFormData({
+          examId: "",
+          questionText: "",
+          options: ["", "", "", ""],
+          correctAnswer: "",
+          file: null,
+        });
+      } else {
+        // For Bulk Question Upload
+        const formDataToSend = new FormData();
+        formDataToSend.append("file", formData.file);
+        formDataToSend.append("examId", formData.examId);
+
+        const response = await fetch("http://localhost:3000/api/questions/create_question", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formDataToSend, // Body is FormData, which handles multipart/form-data
+        });
+        
+
+        if (!response.ok) {
+          throw new Error("Failed to upload bulk questions");
+        }
+
+        toast.success("Bulk questions uploaded successfully!");
       }
 
-      toast.success("Question created successfully!");
-
-      setFormData({
-        examId: "",
-        questionText: "",
-        options: ["", "", "", ""],
-        correctAnswer: "",
-      });
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -85,88 +114,118 @@ const CreateQuestion = () => {
     }
   };
 
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      setFormData({ ...formData, file: acceptedFiles[0] });
+    },
+    accept: ".xlsx", // Accept only .xlsx files
+  });
+
   return (
-    <div className="flex h-screen">
+    <div className="flex h-auto min-h-screen bg-gray-100">
       <Sidebar />
-      <div className="flex flex-col flex-1 p-6">
+      <div className="flex-1 p-4 overflow-auto">
         {loading ? (
           <Loader />
         ) : (
           <>
-            <div className="flex justify-between items-center p-6 bg-white">
-              <h1 className="text-3xl font-bold">Add Question</h1>
+            <div className="bg-white p-4 rounded-lg shadow-lg">
+              <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+                {isBulkUpload ? "Bulk Upload Questions" : "Add Single Question"}
+              </h1>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-600">Select Exam</label>
+                  <select
+                    name="examId"
+                    value={formData.examId}
+                    onChange={handleInputChange}
+                    className="mt-2 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Exam</option>
+                    {exams.map((exam) => (
+                      <option key={exam._id} value={exam._id}>
+                        {exam.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {!isBulkUpload ? (
+                  <>
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-600">Question</label>
+                      <textarea
+                        name="questionText"
+                        value={formData.questionText}
+                        onChange={handleInputChange}
+                        className="mt-2 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter the question"
+                      ></textarea>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-600">Options</label>
+                      {formData.options.map((option, index) => (
+                        <input
+                          key={index}
+                          type="text"
+                          value={option}
+                          onChange={(e) => handleOptionChange(index, e.target.value)}
+                          className="mt-2 p-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder={`Option ${index + 1}`}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-sm font-medium text-gray-600">Correct Answer</label>
+                      <select
+                        name="correctAnswer"
+                        value={formData.correctAnswer}
+                        onChange={handleInputChange}
+                        className="mt-2 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select the correct answer</option>
+                        {formData.options.map((option, index) => (
+                          <option key={index} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <div
+                    {...getRootProps()}
+                    className="mt-4 p-4 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer"
+                  >
+                    <input {...getInputProps()} />
+                    <p className="text-center text-gray-600">
+                      {formData.file
+                        ? `File: ${formData.file.name}`
+                        : "Drag & drop an Excel file here, or click to select"}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center mt-4">
+                  <button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {isBulkUpload ? "Upload Questions" : "Add Question"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsBulkUpload(!isBulkUpload)}
+                    className="text-sm text-blue-600 hover:text-blue-700"
+                  >
+                    {isBulkUpload ? "Add Single Question" : "Upload Bulk Questions"}
+                  </button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Exam:
-                </label>
-                <select
-                  name="examId"
-                  value={formData.examId}
-                  onChange={handleInputChange}
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                  <option value="">Select an exam</option>
-                  {exams.map((exam) => (
-                    <option key={exam._id} value={exam._id}>
-                      {exam.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Question:
-                </label>
-                <textarea
-                  name="questionText"
-                  value={formData.questionText}
-                  onChange={handleInputChange}
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter the question"
-                ></textarea>
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Options:
-                </label>
-                {formData.options.map((option, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    value={option}
-                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                    className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
-                    placeholder={`Option ${index + 1}`}
-                  />
-                ))}
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">
-                  Correct Answer:
-                </label>
-                <select
-                  name="correctAnswer"
-                  value={formData.correctAnswer}
-                  onChange={handleInputChange}
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                  <option value="">Select the correct answer</option>
-                  {formData.options.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Add Question
-              </button>
-            </form>
           </>
         )}
       </div>
